@@ -31,6 +31,7 @@
     "homepage": "https://github.com/Ojvar/SunSet-5#readme",
     "devDependencies": {
         "@babel/core": "^7.12.13",
+        "@types/amqplib": "^0.8.2",
         "@types/body-parser": "^1.19.0",
         "@types/compression": "^1.7.0",
         "@types/connect-redis": "^0.0.16",
@@ -87,6 +88,7 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.15.2",
+        "amqplib": "^0.8.0",
         "animate.css": "^4.1.1",
         "axios": "^0.21.1",
         "buefy": "^0.9.4",
