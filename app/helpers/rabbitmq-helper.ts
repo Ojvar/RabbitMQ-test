@@ -2,7 +2,14 @@ import {
     config as RabbitMQConfig,
     RabbitMQConfigType,
 } from "@CONFIGS/backend/rabbitmq";
-import { Channel, connect, Connection, Options } from "amqplib";
+import {
+    Channel,
+    connect,
+    Connection,
+    ConsumeMessage,
+    Options,
+    Replies,
+} from "amqplib";
 
 /**
  * Rabbit-mq helper
@@ -17,27 +24,19 @@ export class RabbitMQHelper {
      */
     public async connect() {
         const options: Options.Connect = {
+            heartbeat: 60,
             hostname: this.config.host,
             password: this.config.auth.password,
             port: this.config.port,
             username: this.config.auth.username,
-            heartbeat: 60,
             vhost: this.config.auth.vhost,
         } as Options.Connect;
 
-        console.log(options);
-
         /* Try to connect */
-        const connection: Connection = await connect(options);
-
-        /* Store connection */
-        this.connection = connection;
+        this.connection = await connect(options);
 
         /* Try to create a channel */
-        const channel: Channel = await this.connection.createChannel();
-
-        /* Store channel */
-        this.channel = channel;
+        this.channel = await this.connection.createChannel();
     }
 
     /**
@@ -47,15 +46,30 @@ export class RabbitMQHelper {
         await this.connection?.close();
     }
 
-    /* Send */
-    public send(queue: string, message: string): boolean | undefined {
-        this.channel?.assertQueue(queue, {
-            // durable: false,
-        });
+    /**
+     * Produce a message
+     * @param queue {string} Queue name
+     * @param message {srting} Message to send
+     * @returns {boolean | undefined}
+     */
+    public produce(queue: string, message: string): boolean | undefined {
+        this.channel?.assertQueue(queue);
 
         return this.channel?.sendToQueue(queue, Buffer.from(message));
+    }
 
-        /* Log */
-        console.log(" [x] Sent %s", message);
+    /**
+     * Consume a message
+     * @param queue {string} Queue name
+     * @returns {Replies.Consume | undefined}
+     */
+    public async consume(
+        queue: string,
+        onMessage: (msg: ConsumeMessage | null) => void,
+        options?: Options.Consume,
+    ): Promise<Replies.Consume | undefined> {
+        this.channel?.assertQueue(queue);
+
+        return await this.channel?.consume(queue, onMessage, options);
     }
 }
