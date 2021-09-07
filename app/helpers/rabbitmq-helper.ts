@@ -11,6 +11,14 @@ import {
     Replies,
 } from "amqplib";
 
+export type TopicType =
+    | "direct"
+    | "topic"
+    | "headers"
+    | "fanout"
+    | "match"
+    | string;
+
 /**
  * Rabbit-mq helper
  */
@@ -68,8 +76,31 @@ export class RabbitMQHelper {
         onMessage: (msg: ConsumeMessage | null) => void,
         options?: Options.Consume,
     ): Promise<Replies.Consume | undefined> {
-        this.channel?.assertQueue(queue);
+        await this.channel?.assertQueue(queue);
 
         return await this.channel?.consume(queue, onMessage, options);
+    }
+
+    /**
+     * Publish a message
+     * @param exchange {string} Exchange name
+     * @param topicType {TopicType} TopicType
+     * @param routeKey {string} Route key
+     * @param content {string} Content
+     * @returns {Promise<boolean | undefined>}
+     */
+    public async publish(
+        exchange: string,
+        routeKey: string,
+        content: string,
+        onMessage: (msg: ConsumeMessage | null) => void,
+        options?: Options.Consume,
+    ): Promise<boolean | undefined> {
+        return await this.channel?.publish(
+            exchange,
+            routeKey,
+            Buffer.from(content, "utf-8"),
+            options,
+        );
     }
 }
