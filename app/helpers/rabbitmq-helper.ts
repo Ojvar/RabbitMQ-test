@@ -73,12 +73,17 @@ export class RabbitMQHelper {
      */
     public async consume(
         queue: string,
-        onMessage: (msg: ConsumeMessage | null) => void,
+        onMessage: (msg: ConsumeMessage | null, channel: Channel) => void,
         options?: Options.Consume,
     ): Promise<Replies.Consume | undefined> {
         await this.channel?.assertQueue(queue);
 
-        return await this.channel?.consume(queue, onMessage, options);
+        return await this.channel?.consume(
+            queue,
+            (msg: ConsumeMessage | null) =>
+                onMessage(msg, this.channel as Channel),
+            options,
+        );
     }
 
     /**
@@ -93,7 +98,6 @@ export class RabbitMQHelper {
         exchange: string,
         routeKey: string,
         content: string,
-        onMessage: (msg: ConsumeMessage | null) => void,
         options?: Options.Consume,
     ): Promise<boolean | undefined> {
         return await this.channel?.publish(

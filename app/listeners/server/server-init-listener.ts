@@ -1,7 +1,7 @@
 import { GlobalHelper } from "@APP/helpers/global-helper";
 import { RabbitMQHelper } from "@APP/helpers/rabbitmq-helper";
 import { IEventListener } from "@Lib/interfaces/globa/event-interfaces";
-import { ConsumeMessage } from "amqplib";
+import { Channel, ConsumeMessage } from "amqplib";
 import { json } from "body-parser";
 
 /**
@@ -34,12 +34,9 @@ export default class ServerInitListener implements IEventListener {
             "qeng.auth",
             "user.register",
             JSON.stringify({
-                id: 100,
-                name: "asdfasdf",
-            }),
-            (msg: ConsumeMessage | null) => {
-                console.log(msg, msg?.content.toString("utf-8"));
-            },
+                id: 101,
+                name: "Lorem Ipsume",
+            })
         );
 
         console.log("Server initailized successfully");
